@@ -73,25 +73,27 @@
   .nav-bar {
     display: flex;
     align-items: center;
-    height: 100%;
   }
 
   .nav-item {
     display: flex;
     align-items: center;
     padding: 0 1rem;
-    height: 100%;
     cursor: pointer;
     color: var(--color-text-medium);
     transition: background-color 0.2s, color 0.2s;
     font-size: 0.9rem;
     font-weight: 500;
+    margin: 5px;
     border-radius: 0;
   }
 
   .nav-item:hover, .nav-item.active {
-    background-color: var(--color-active-nav);
     color: var(--color-available);
+    height: 40px;
+    border: 2px solid var(--color-primary-green);
+    border-radius: 15%;
+
   }
 
   .nav-item svg {
@@ -558,7 +560,6 @@
     }
     
     .nav-bar {
-      width: 100%;
       justify-content: space-around;
     }
 
