@@ -5,9 +5,56 @@ import '../App.css';
 
 const HistoryScreen = ({ setScreen, history, setHistory }) => {
 
+  // Clear history function
   const clearHistory = () => {
     setHistory([]);
     localStorage.removeItem('history');
+  };
+
+  // Download single session bill
+  const downloadBill = (session) => {
+    const content = `
+Station: ${session.station}
+Date: ${session.timestamp}
+Energy: ${(session.energy / 1000).toFixed(3)} kWh
+Cost: ₹${session.cost.toFixed(2)}
+    `;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${session.station}_bill.txt`; // file name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  //  Download all sessions together
+  const downloadAllBills = () => {
+    if (history.length === 0) return;
+
+    let content = 'Charging History\n\n';
+    history.forEach((session) => {
+      content += `
+Station: ${session.station}
+Date: ${session.timestamp}
+Energy: ${(session.energy / 1000).toFixed(3)} kWh
+Cost: ₹${session.cost.toFixed(2)}
+-------------------------
+`;
+    });
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'all_charging_bills.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -35,7 +82,10 @@ const HistoryScreen = ({ setScreen, history, setHistory }) => {
                 <span className="history-price" style={{ display: 'flex', alignItems: 'center' }}>
                   <RupeeIcon /> {session.cost.toFixed(2)}
                 </span>
-                <button className="download-button">
+                <button
+                  className="download-button"
+                  onClick={() => downloadBill(session)}
+                >
                   <Download size={18} />
                 </button>
               </div>
@@ -48,6 +98,7 @@ const HistoryScreen = ({ setScreen, history, setHistory }) => {
         <button
           type="button"
           className="button-secondary"
+          onClick={downloadAllBills}
           style={{ borderColor: 'var(--color-primary-green)', color: 'var(--color-primary-green)' }}
         >
           <Download size={18} style={{ marginRight: '6px' }} />

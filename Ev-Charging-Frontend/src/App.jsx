@@ -9,26 +9,25 @@ import HistoryScreen from './components/HistoryScreen';
 import WalletScreen from './components/WalletScreen';
 import LoginScreen from './components/LoginScreen';
 
-import { STATION_DATA, INITIAL_BALANCE } from './data/constants';
+import { BACKEND_URL, INITIAL_BALANCE } from './data/constants';
 import './App.css';
 
 const App = () => {
   const [currentScreen, setScreen] = useState('login');
   const [isLoggedIn, setLoggedIn] = useState(false);
-  const [selectedStation, setStation] = useState(STATION_DATA[0]);
+  const [selectedStation, setStation] = useState(null);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
 
   // Load user data from localStorage
   const [userData, setUserData] = useState(() => {
     const savedUser = localStorage.getItem('userData');
     const logged = localStorage.getItem('isLoggedIn');
-
     if (savedUser && logged === 'true') {
       setLoggedIn(true);
       setScreen('stations');
       return JSON.parse(savedUser);
     }
-    return { name: '', vehicle: '', mobile: '' };
+    return null;
   });
 
   // Load history from localStorage
@@ -37,52 +36,53 @@ const App = () => {
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
 
-  const [currentSession, setSessionData] = useState({
-    station: STATION_DATA[0].name,
-    energy: 0,
-    cost: 0,
-    duration: 0,
-    watts: 0,
-    timestamp: null
-  });
+  const [currentSession, setSessionData] = useState(null);
 
-  const handleLogin = (data) => {
-    setUserData(data);
+  // Handle login
+  const handleLogin = (user) => {
+    // user should include _id, name, vehicleNo, mobile
+    setUserData(user);
     setLoggedIn(true);
     setScreen('stations');
 
-    localStorage.setItem('userData', JSON.stringify(data));
+    localStorage.setItem('userData', JSON.stringify(user));
     localStorage.setItem('isLoggedIn', 'true');
   };
 
+  // Handle logout
   const handleLogout = () => {
     setLoggedIn(false);
-    setUserData({ name: '', vehicle: '', mobile: '' });
-
+    setUserData(null);
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
-
     setScreen('login');
   };
 
-  // Save history automatically when changed
+  // Save history whenever updated
   useEffect(() => {
     localStorage.setItem('history', JSON.stringify(history));
   }, [history]);
 
+  // Render screens based on currentScreen
   const renderScreen = () => {
     if (!isLoggedIn) return <LoginScreen onLogin={handleLogin} />;
 
     switch (currentScreen) {
       case 'stations':
-        return <StationSelection setScreen={setScreen} setStation={setStation} />;
+        return (
+          <StationSelection
+            setScreen={setScreen}
+            setStation={setStation}
+            userData={userData}
+          />
+        );
       case 'charging':
         return (
           <ChargingScreen
             station={selectedStation}
             userData={userData}
             setScreen={setScreen}
-            setSessionData={setSessionData}
+           setSessionData={setSessionData} 
             currentSession={currentSession}
           />
         );
@@ -114,9 +114,21 @@ const App = () => {
           />
         );
       case 'history':
-        return <HistoryScreen setScreen={setScreen} history={history} setHistory={setHistory} />;
+        return (
+          <HistoryScreen
+            setScreen={setScreen}
+            history={history}
+            setHistory={setHistory}
+          />
+        );
       case 'wallet':
-        return <WalletScreen setScreen={setScreen} balance={balance} setBalance={setBalance} />;
+        return (
+          <WalletScreen
+            setScreen={setScreen}
+            balance={balance}
+            setBalance={setBalance}
+          />
+        );
       default:
         return <LoginScreen onLogin={handleLogin} />;
     }

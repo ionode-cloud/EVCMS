@@ -7,6 +7,8 @@ const LoginScreen = ({ onLogin }) => {
     vehicle: '',
     mobile: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -15,10 +17,41 @@ const LoginScreen = ({ onLogin }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.mobile || !formData.vehicle) return;
-    onLogin(formData); 
+
+    if (!formData.name || !formData.mobile || !formData.vehicle) {
+      setError('Please fill all fields.');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      // Send POST request to backend
+      const response = await fetch("http://localhost:38923/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Login/Register Success:", data);
+        onLogin(data.user); // Pass user data to parent
+        alert(data.message);
+      } else {
+        console.error("Login Failed:", data);
+        setError(data.message || "Something went wrong!");
+      }
+    } catch (err) {
+      console.error(" Error:", err);
+      setError("Cannot connect to backend.");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -70,8 +103,15 @@ const LoginScreen = ({ onLogin }) => {
           />
         </div>
 
-        <button type="submit" className="button-primary" style={{ width: '100%', marginTop: '15px' }}>
-          Login
+        {error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}
+
+        <button
+          type="submit"
+          className="button-primary"
+          style={{ width: '100%', marginTop: '15px' }}
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

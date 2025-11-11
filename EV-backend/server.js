@@ -3,10 +3,11 @@ import cors from "cors";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import Razorpay from "razorpay";
+import { log } from "console";
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+
 
 // ---------------- MongoDB Connection ----------------
 mongoose.connect("mongodb+srv://ionode:ionode@ionode.qgqbadm.mongodb.net/EVCMS?retryWrites=true&w=majority")
@@ -23,7 +24,11 @@ const evStationSchema = new mongoose.Schema({
   consPower: { type: Number, default: 0 },
   duration: { type: Number, default: 0 },
   cost: { type: Number, default: 0 },
-  occupancy: { type: Boolean, default: false }
+  occupancy: { type: Boolean, default: false },
+  address: { type: String, default: "Unknown" },
+connector: { type: String, default: "Type2" },
+power: { type: Number, default: 0 },
+
 });
 
 const userProfile = new mongoose.Schema({
@@ -36,10 +41,18 @@ const userProfile = new mongoose.Schema({
 const Stations = mongoose.model("Station", evStationSchema);
 const User = mongoose.model("User", userProfile);
 
+//  Allow your React app origin
+app.use(cors({
+  origin: "http://localhost:5173", // your frontend port
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
+
 // ---------------- Razorpay Setup ----------------
 const razorpay = new Razorpay({
-  key_id: "YOUR_RAZORPAY_KEY_ID",
-  key_secret: "YOUR_RAZORPAY_SECRET"
+  key_id: "rzp_test_R8hZFBr7vJp0td",
+  key_secret: "xJmq8m7LmpcfUUvtS25Vixya"
 });
 
 // ---------------- Routes ----------------
@@ -64,21 +77,42 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
+// TODO : update route for data updation using stationId
+
+// Create Razorpay order
 // Create Razorpay order
 app.post("/create-order", async (req, res) => {
   try {
-    const { amount } = req.body; // Amount in INR (example: 100 = ₹1)
+    let { amount } = req.body;
+
+    console.log("Create order request received:", req.body);
+
+    // ✅ Validate amount
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+
+    // Convert amount to paisa
+    const amountInPaisa = Math.round(Number(amount) * 100);
+
     const options = {
-      amount: amount * 100, // Convert to paisa
+      amount: amountInPaisa, // amount in paisa
       currency: "INR",
-      receipt: `receipt_order_${Math.floor(Math.random() * 10000)}`,
+      receipt: `receipt_order_${Math.floor(Math.random() * 1000000)}`,
     };
+
     const order = await razorpay.orders.create(options);
+
+    console.log(" Razorpay order created:", order);
+
     res.status(200).json({ orderId: order.id, currency: order.currency, amount: order.amount });
   } catch (err) {
+    console.error(" Razorpay order creation failed:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Verify Razorpay payment signature
 app.post("/verify-payment", (req, res) => {
@@ -101,9 +135,11 @@ app.post("/verify-payment", (req, res) => {
   }
 });
 
-// Start charging session
+// Start charging session onclick
 app.post("/start-session", async (req, res) => {
   try {
+    console.log(req.body);
+    
     const { stationId, userId, duration } = req.body;
     const station = await Stations.findById(stationId);
     if (!station) return res.status(404).json({ message: "Station not found" });
@@ -138,6 +174,58 @@ app.post("/end-session", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Create a new EV station
+app.post("/stations", async (req, res) => {
+  try {
+    const { name, disHighway, maxCapacity, rate } = req.body;
+    const newStation = await Stations.create({
+      name,
+      disHighway,
+      maxCapacity,
+      rate,
+    });
+    res.status(201).json({ message: "Station created", station: newStation });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all stations
+app.get("/stations", async (req, res) => {
+  try {
+    const stations = await Stations.find();
+    res.status(200).json(stations);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get station by ID
+app.get("/stations/:id", async (req, res) => {
+  try {
+    const stationId = req.params.id;
+    const station = await Stations.findById(stationId);
+    if (!station) return res.status(404).json({ message: "Station not found" });
+    res.status(200).json(station);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update a station by ID (optional, for future)
+app.put("/stations/:id", async (req, res) => {
+  try {
+    const stationId = req.params.id;
+    const updates = req.body;
+    const updatedStation = await Stations.findByIdAndUpdate(stationId, updates, { new: true });
+    if (!updatedStation) return res.status(404).json({ message: "Station not found" });
+    res.status(200).json({ message: "Station updated", station: updatedStation });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // ---------------- Start Server ----------------
 const PORT = process.env.PORT || 38923;
