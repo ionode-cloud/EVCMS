@@ -4,15 +4,18 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import Razorpay from "razorpay";
 import { log } from "console";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-
 // ---------------- MongoDB Connection ----------------
-mongoose.connect("mongodb+srv://ionode:ionode@ionode.qgqbadm.mongodb.net/EVCMS?retryWrites=true&w=majority")
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected."))
-  .catch(err => console.error("Error connecting MongoDB:", err));
+  .catch((err) => console.error("Error connecting MongoDB:", err));
 
 // ---------------- Schemas ----------------
 const evStationSchema = new mongoose.Schema({
@@ -26,33 +29,33 @@ const evStationSchema = new mongoose.Schema({
   cost: { type: Number, default: 0 },
   occupancy: { type: Boolean, default: false },
   address: { type: String, default: "Unknown" },
-connector: { type: String, default: "Type2" },
-power: { type: Number, default: 0 },
-
+  connector: { type: String, default: "Type2" },
+  power: { type: Number, default: 0 },
 });
 
 const userProfile = new mongoose.Schema({
   name: { type: String, required: true },
   vehicleNo: { type: String, required: true, unique: true },
   mobile: { type: String, required: true },
-  wallet: { type: Number, default: 0 }
+  wallet: { type: Number, default: 0 },
 });
 
 const Stations = mongoose.model("Station", evStationSchema);
 const User = mongoose.model("User", userProfile);
 
 //  Allow your React app origin
-app.use(cors({
-  origin: "http://localhost:5173", // your frontend port
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
-
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend port
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // ---------------- Razorpay Setup ----------------
 const razorpay = new Razorpay({
-  key_id: "rzp_test_R8hZFBr7vJp0td",
-  key_secret: "xJmq8m7LmpcfUUvtS25Vixya"
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 // ---------------- Routes ----------------
@@ -68,7 +71,10 @@ app.post("/login", async (req, res) => {
     const { name, mobile, vehicle } = req.body;
     const existingUser = await User.findOne({ vehicleNo: vehicle });
 
-    if (existingUser) return res.status(200).json({ message: "User logged in", user: existingUser });
+    if (existingUser)
+      return res
+        .status(200)
+        .json({ message: "User logged in", user: existingUser });
 
     const newUser = await User.create({ name, mobile, vehicleNo: vehicle });
     res.status(201).json({ message: "User registered", user: newUser });
@@ -102,18 +108,22 @@ app.post("/create-order", async (req, res) => {
 
     console.log(" Razorpay order created:", order);
 
-    res.status(200).json({ orderId: order.id, currency: order.currency, amount: order.amount });
+    res.status(200).json({
+      orderId: order.id,
+      currency: order.currency,
+      amount: order.amount,
+    });
   } catch (err) {
     console.error(" Razorpay order creation failed:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-
 // Verify Razorpay payment signature
 app.post("/verify-payment", (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      req.body;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
 
     const expectedSignature = crypto
@@ -122,7 +132,9 @@ app.post("/verify-payment", (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      res.status(200).json({ success: true, message: "Payment verified successfully" });
+      res
+        .status(200)
+        .json({ success: true, message: "Payment verified successfully" });
     } else {
       res.status(400).json({ success: false, message: "Invalid signature" });
     }
@@ -135,7 +147,7 @@ app.post("/verify-payment", (req, res) => {
 app.post("/start-session", async (req, res) => {
   try {
     console.log(req.body);
-    
+
     const { stationId, userId, duration } = req.body;
     const station = await Stations.findById(stationId);
     if (!station) return res.status(404).json({ message: "Station not found" });
@@ -214,14 +226,21 @@ app.put("/stations/:id", async (req, res) => {
   try {
     const stationId = req.params.id;
     const updates = req.body;
-    const updatedStation = await Stations.findByIdAndUpdate(stationId, updates, { new: true });
-    if (!updatedStation) return res.status(404).json({ message: "Station not found" });
-    res.status(200).json({ message: "Station updated", station: updatedStation });
+    const updatedStation = await Stations.findByIdAndUpdate(
+      stationId,
+      updates,
+      { new: true }
+    );
+    if (!updatedStation)
+      return res.status(404).json({ message: "Station not found" });
+    res
+      .status(200)
+      .json({ message: "Station updated", station: updatedStation });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-// delete station by ID 
+// delete station by ID
 app.delete("/stations/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -238,7 +257,8 @@ app.delete("/stations/:id", async (req, res) => {
   }
 });
 
-
 // ---------------- Start Server ----------------
 const PORT = process.env.PORT || 38923;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);
