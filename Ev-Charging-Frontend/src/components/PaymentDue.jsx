@@ -75,7 +75,7 @@ const PaymentDue = ({ setScreen, sessionData, setBalance, history, setHistory })
 
       <div className="button-group">
         <button onClick={handlePayNow} className="button-primary">Pay Now</button>
-        <button onClick={() => setScreen("history")} className="button-primary">View History</button>
+        {/* <button onClick={() => setScreen("history")} className="button-primary">View History</button> */}
       </div>
     </div>
   );

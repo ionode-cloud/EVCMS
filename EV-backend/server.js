@@ -77,10 +77,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-// TODO : update route for data updation using stationId
-
-// Create Razorpay order
 // Create Razorpay order
 app.post("/create-order", async (req, res) => {
   try {
@@ -88,7 +84,7 @@ app.post("/create-order", async (req, res) => {
 
     console.log("Create order request received:", req.body);
 
-    // ✅ Validate amount
+    //  Validate amount
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
@@ -223,6 +219,22 @@ app.put("/stations/:id", async (req, res) => {
     res.status(200).json({ message: "Station updated", station: updatedStation });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+// delete station by ID 
+app.delete("/stations/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedStation = await Stations.findByIdAndDelete(id);
+
+    if (!deletedStation) {
+      return res.status(404).json({ message: "Station not found" });
+    }
+
+    res.json({ message: "Station deleted successfully", deletedStation });
+  } catch (error) {
+    console.error("❌ Error deleting station:", error);
+    res.status(500).json({ error: "Failed to delete station" });
   }
 });
 

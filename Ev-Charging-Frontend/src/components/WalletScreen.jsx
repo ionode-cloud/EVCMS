@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RupeeIcon, formatCurrency } from '../data/utils';
 import '../App.css';
 
 const WalletScreen = ({ setScreen, balance, setBalance }) => {
   const [amount, setAmount] = useState('');
 
+  // 🧠 Load balance from localStorage on mount
+  useEffect(() => {
+    const savedBalance = localStorage.getItem("walletBalance");
+    if (savedBalance) {
+      setBalance(parseFloat(savedBalance));
+    }
+  }, [setBalance]);
+
+  // 💾 Save balance to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("walletBalance", balance);
+  }, [balance]);
+
   const handleAddMoney = (e) => {
     e.preventDefault();
     const addAmount = parseFloat(amount);
     if (addAmount > 0) {
-      setBalance((prev) => prev + addAmount);
+      const newBalance = balance + addAmount;
+      setBalance(newBalance);
+      localStorage.setItem("walletBalance", newBalance); // save immediately
       setAmount('');
-      console.log('Money added successfully!');
+      alert("Money added successfully!");
+    } else {
+      alert("Please enter a valid amount!");
     }
   };
 

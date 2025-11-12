@@ -35,10 +35,6 @@ const PaymentSuccess = ({ setScreen, sessionData, balance }) => {
         <button onClick={() => setScreen('stations')} className="button-primary">
           Dashboard
         </button>
-        <button className="button-secondary">
-          <Download size={18} style={{ marginRight: '6px' }} />
-          Bill
-        </button>
       </div>
 
       <div className="toast">

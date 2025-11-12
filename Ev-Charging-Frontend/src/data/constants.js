@@ -5,7 +5,7 @@ export const STATION_DATA = [
    { id: 4, name: 'Nayapali', address: '403 Highway', available: false, power: '100 kW DC', connector: 'CHAdeMO' },
 ];
 
-export const INITIAL_BALANCE = 1000;
+export const INITIAL_BALANCE = 500;
 export const RATE_PER_KWH = 5;
 export const MAX_CAPACITY_W = 50000;
 export const BACKEND_URL = "http://localhost:38923";

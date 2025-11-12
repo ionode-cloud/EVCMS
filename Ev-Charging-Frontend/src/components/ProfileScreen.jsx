@@ -5,10 +5,11 @@ import '../App.css';
 
 const ProfileScreen = ({ setScreen, userData, balance, setLoggedIn }) => {
     const profileData = [
-        { label: 'Name', value: userData.name, icon: Users },
-        { label: 'Vehicle ID', value: userData.vehicle, icon: Car },
-        { label: 'Mobile Number', value: userData.mobile, icon: Phone },
-    ];
+  { label: 'Name', value: userData.name, icon: Users },
+  { label: 'Vehicle ID', value: userData.vehicleNo, icon: Car },
+  { label: 'Mobile Number', value: userData.mobile, icon: Phone },
+];
+
 
     const avatarInitial = userData.name ? userData.name[0].toUpperCase() : 'U';
 
