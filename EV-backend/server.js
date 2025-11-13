@@ -51,7 +51,7 @@ const User = mongoose.model("User", userProfile);
 //  Allow your React app origin
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://evcms.ionoide.cloud"],
+    origin: ["http://15.207.116.130:5000", "http://evcms.ionode.cloud"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -263,11 +263,7 @@ app.delete("/stations/:id", async (req, res) => {
 });
 
 // ---------------- Start Server ----------------
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
-});
-const PORT = process.env.PORT || 38923;
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on http://0.0.0.0:${PORT}`)
 );
