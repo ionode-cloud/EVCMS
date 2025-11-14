@@ -142,7 +142,7 @@ const App = () => {
       <main className="main-content">{renderScreen()}</main>
       {isLoggedIn && (
         <footer className="footer">
-          Made with <span>⚡</span> for EV Charging • Max Power: 50kW
+          Made with <span>⚡</span> for EV Charging 
         </footer>
       )}
     </div>

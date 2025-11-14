@@ -68,7 +68,7 @@ const PaymentDue = ({ setScreen, sessionData, setBalance, history, setHistory })
 
       <div className="data-table">
         <div className="table-row"><span>Station</span><span>{sessionData.station}</span></div>
-        <div className="table-row"><span>Energy Consumed</span><span>{(sessionData.energy / 1000).toFixed(3)} kWh</span></div>
+        <div className="table-row"><span>Power Consumed</span><span>{(sessionData.energy / 1000).toFixed(3)} kWh</span></div>
         <div className="table-row"><span>Rate</span><span>₹ 5 / kWh</span></div>
         <div className="table-row table-row-total"><span>Total Payable</span><span>₹ {Number(sessionData.cost).toFixed(2)}</span></div>
       </div>

@@ -43,11 +43,10 @@ const User = mongoose.model("User", userProfile);
 
 //  Allow your React app origin
 app.use(cors({
-  origin: "http://localhost:5173", // your frontend port
+  origin: "http://localhost:5173", // <-- frontend origin
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
-
 
 // ---------------- Razorpay Setup ----------------
 const razorpay = new Razorpay({
@@ -237,7 +236,6 @@ app.delete("/stations/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to delete station" });
   }
 });
-
 
 // ---------------- Start Server ----------------
 const PORT = process.env.PORT || 38923;
