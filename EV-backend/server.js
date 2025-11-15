@@ -49,13 +49,6 @@ const Stations = mongoose.model("Station", evStationSchema);
 const User = mongoose.model("User", userProfile);
 
 //  Allow your React app origin
-<<<<<<< HEAD
-app.use(cors({
-  origin: "http://localhost:5173", // <-- frontend origin
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
-=======
 app.use(
   cors({
     origin: ["http://15.207.116.130:5000", "http://evcms.ionode.cloud"],
@@ -63,7 +56,6 @@ app.use(
     credentials: true,
   })
 );
->>>>>>> b07cf563206aa239c898fb4aed060436705c7a10
 
 // ---------------- Razorpay Setup ----------------
 const razorpay = new Razorpay({

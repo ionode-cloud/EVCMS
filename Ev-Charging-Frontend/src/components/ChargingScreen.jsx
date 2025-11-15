@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { MapPin, Clock } from "lucide-react";
+import { BACKEND_URL } from "../data/constants";
 import "../App.css";
 
 const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
   const [isCharging, setIsCharging] = useState(false);
 
   // FRONTEND default values BEFORE START
-  const [elapsedTime, setElapsedTime] = useState(0);      // sec
+  const [elapsedTime, setElapsedTime] = useState(0); // sec
   const [energyConsumed, setEnergyConsumed] = useState(0); // kWh
-  const [currentPower, setCurrentPower] = useState(0);     // kW
+  const [currentPower, setCurrentPower] = useState(0); // kW
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -18,7 +19,7 @@ const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
     if (!isCharging) return; // STOP API calls before start
 
     try {
-      const res = await fetch("http://localhost:38923/stations");
+      const res = await fetch(`http://${BACKEND_URL}/stations`);
       const data = await res.json();
       const live = data.find((s) => s._id === station._id);
 
@@ -117,12 +118,10 @@ const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
   };
 
   return (
-    <div className="charging-view">
-      <div className="charging-header">
-        <h2 className="charging-title">{station.name}</h2>
-        <div className="status-tag">
-          {currentPower} kW
-        </div>
+    <div className='charging-view'>
+      <div className='charging-header'>
+        <h2 className='charging-title'>{station.name}</h2>
+        <div className='status-tag'>{currentPower} kW</div>
       </div>
 
       <p style={{ color: "var(--color-text-medium)", marginBottom: 24 }}>
@@ -130,57 +129,54 @@ const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
       </p>
 
       {/* ---------------- STATION DATA ---------------- */}
-      <div className="charging-stats-grid card">
-        <div className="stat-item">
-          <div className="stat-value">{station.maxCapacity} kW</div>
-          <div className="stat-label">Max Capacity</div>
+      <div className='charging-stats-grid card'>
+        <div className='stat-item'>
+          <div className='stat-value'>{station.maxCapacity} kW</div>
+          <div className='stat-label'>Max Capacity</div>
         </div>
 
-        <div className="stat-item">
-          <div className="stat-value">₹{station.rate}/kWh</div>
-          <div className="stat-label">Rate</div>
+        <div className='stat-item'>
+          <div className='stat-value'>₹{station.rate}/kWh</div>
+          <div className='stat-label'>Rate</div>
         </div>
 
-        <div className="stat-item">
-          <div className="stat-value">{userData.vehicleNo}</div>
-          <div className="stat-label">Vehicle No.</div>
+        <div className='stat-item'>
+          <div className='stat-value'>{userData.vehicleNo}</div>
+          <div className='stat-label'>Vehicle No.</div>
         </div>
       </div>
 
       {/* ---------------- LIVE POWER & ENERGY ---------------- */}
-      <div className="gauge-grid">
-        <div className="gauge-card card">
-          <p className="gauge-value">{station.currPower}</p>
-          <p className="gauge-unit">kW</p>
-          <p className="gauge-label">Current Power</p>
+      <div className='gauge-grid'>
+        <div className='gauge-card card'>
+          <p className='gauge-value'>{station.currPower}</p>
+          <p className='gauge-unit'>kW</p>
+          <p className='gauge-label'>Current Power</p>
         </div>
 
-        <div className="gauge-card card">
-          <p className="gauge-value">{energyConsumed.toFixed(3)}</p>
-          <p className="gauge-unit">kWh</p>
-          <p className="gauge-label">Consumed Energy</p>
+        <div className='gauge-card card'>
+          <p className='gauge-value'>{energyConsumed.toFixed(3)}</p>
+          <p className='gauge-unit'>kWh</p>
+          <p className='gauge-label'>Consumed Energy</p>
         </div>
       </div>
 
       {/* ---------------- SESSION INFO ---------------- */}
-      <div className="card" style={{ padding: 20 }}>
-        <div className="session-details">
+      <div className='card' style={{ padding: 20 }}>
+        <div className='session-details'>
           <span>
             <Clock size={16} /> Duration:{" "}
-            <span className="duration-text">{formattedTime}</span>
+            <span className='duration-text'>{formattedTime}</span>
           </span>
 
-          <span className="amount-text">₹{totalCost}</span>
+          <span className='amount-text'>₹{totalCost}</span>
         </div>
       </div>
 
       {/* ---------------- START / STOP BUTTON ---------------- */}
-      <div
-        className="button-group"
-        style={{ justifyContent: "center" }}
-      >
+      <div className='button-group' style={{ justifyContent: "center" }}>
         <button
-          className="button-primary"
+          className='button-primary'
           onClick={handleStartStop}
           disabled={loading}
           style={{
