@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import StationSelection from './components/StationSelection';
-import ChargingScreen from './components/ChargingScreen';
-import PaymentDue from './components/PaymentDue';
-import PaymentSuccess from './components/PaymentSuccess';
-import ProfileScreen from './components/ProfileScreen';
-import HistoryScreen from './components/HistoryScreen';
-import WalletScreen from './components/WalletScreen';
-import LoginScreen from './components/LoginScreen';
+import React, { useState, useEffect } from "react";
+import Header from "./components/Header";
+import StationSelection from "./components/StationSelection";
+import ChargingScreen from "./components/ChargingScreen";
+import PaymentDue from "./components/PaymentDue";
+import PaymentSuccess from "./components/PaymentSuccess";
+import ProfileScreen from "./components/ProfileScreen";
+import HistoryScreen from "./components/HistoryScreen";
+import WalletScreen from "./components/WalletScreen";
+import LoginScreen from "./components/LoginScreen";
 
-import { BACKEND_URL, INITIAL_BALANCE } from './data/constants';
-import './App.css';
+import { BACKEND_URL, INITIAL_BALANCE } from "./data/constants";
+import "./App.css";
 
 const App = () => {
-  const [currentScreen, setScreen] = useState('login');
+  const [currentScreen, setScreen] = useState("login");
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [selectedStation, setStation] = useState(null);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
 
   // Load user data from localStorage
   const [userData, setUserData] = useState(() => {
-    const savedUser = localStorage.getItem('userData');
-    const logged = localStorage.getItem('isLoggedIn');
-    if (savedUser && logged === 'true') {
+    const savedUser = localStorage.getItem("userData");
+    const logged = localStorage.getItem("isLoggedIn");
+    if (savedUser && logged === "true") {
       setLoggedIn(true);
-      setScreen('stations');
+      setScreen("stations");
       return JSON.parse(savedUser);
     }
     return null;
@@ -32,7 +32,7 @@ const App = () => {
 
   // Load history from localStorage
   const [history, setHistory] = useState(() => {
-    const savedHistory = localStorage.getItem('history');
+    const savedHistory = localStorage.getItem("history");
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
 
@@ -43,24 +43,24 @@ const App = () => {
     // user should include _id, name, vehicleNo, mobile
     setUserData(user);
     setLoggedIn(true);
-    setScreen('stations');
+    setScreen("stations");
 
-    localStorage.setItem('userData', JSON.stringify(user));
-    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem("userData", JSON.stringify(user));
+    localStorage.setItem("isLoggedIn", "true");
   };
 
   // Handle logout
   const handleLogout = () => {
     setLoggedIn(false);
     setUserData(null);
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    setScreen('login');
+    localStorage.removeItem("userData");
+    localStorage.removeItem("isLoggedIn");
+    setScreen("login");
   };
 
   // Save history whenever updated
   useEffect(() => {
-    localStorage.setItem('history', JSON.stringify(history));
+    localStorage.setItem("history", JSON.stringify(history));
   }, [history]);
 
   // Render screens based on currentScreen
@@ -68,7 +68,7 @@ const App = () => {
     if (!isLoggedIn) return <LoginScreen onLogin={handleLogin} />;
 
     switch (currentScreen) {
-      case 'stations':
+      case "stations":
         return (
           <StationSelection
             setScreen={setScreen}
@@ -76,17 +76,17 @@ const App = () => {
             userData={userData}
           />
         );
-      case 'charging':
+      case "charging":
         return (
           <ChargingScreen
             station={selectedStation}
             userData={userData}
             setScreen={setScreen}
-           setSessionData={setSessionData} 
+            setSessionData={setSessionData}
             currentSession={currentSession}
           />
         );
-      case 'payment_due':
+      case "payment_due":
         return (
           <PaymentDue
             setScreen={setScreen}
@@ -96,7 +96,7 @@ const App = () => {
             setHistory={setHistory}
           />
         );
-      case 'payment_success':
+      case "payment_success":
         return (
           <PaymentSuccess
             setScreen={setScreen}
@@ -104,7 +104,7 @@ const App = () => {
             balance={balance}
           />
         );
-      case 'profile':
+      case "profile":
         return (
           <ProfileScreen
             setScreen={setScreen}
@@ -113,7 +113,7 @@ const App = () => {
             setLoggedIn={handleLogout}
           />
         );
-      case 'history':
+      case "history":
         return (
           <HistoryScreen
             setScreen={setScreen}
@@ -121,7 +121,7 @@ const App = () => {
             setHistory={setHistory}
           />
         );
-      case 'wallet':
+      case "wallet":
         return (
           <WalletScreen
             setScreen={setScreen}
@@ -135,14 +135,18 @@ const App = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className='app-container'>
       {isLoggedIn && (
-        <Header currentScreen={currentScreen} setScreen={setScreen} balance={balance} />
+        <Header
+          currentScreen={currentScreen}
+          setScreen={setScreen}
+          balance={balance}
+        />
       )}
-      <main className="main-content">{renderScreen()}</main>
+      <main className='main-content'>{renderScreen()}</main>
       {isLoggedIn && (
-        <footer className="footer">
-          Made with <span>⚡</span> for EV Charging 
+        <footer className='footer'>
+          Made with <span>⚡</span> for EV Charging
         </footer>
       )}
     </div>

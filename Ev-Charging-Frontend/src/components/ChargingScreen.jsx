@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { MapPin, Clock } from "lucide-react";
-import { BACKEND_URL } from "../data/constants";
+
 import "../App.css";
+import { BACKEND_URL } from "../data/constants";
 
 const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
   const [isCharging, setIsCharging] = useState(false);
@@ -19,7 +20,7 @@ const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
     if (!isCharging) return; // STOP API calls before start
 
     try {
-      const res = await fetch(`http://${BACKEND_URL}/stations`);
+      const res = await fetch(`${BACKEND_URL}stations`);
       const data = await res.json();
       const live = data.find((s) => s._id === station._id);
 
@@ -150,6 +151,7 @@ const ChargingScreen = ({ station, userData, setScreen, setSessionData }) => {
       <div className='gauge-grid'>
         <div className='gauge-card card'>
           <p className='gauge-value'>{station.currPower}</p>
+
           <p className='gauge-unit'>kW</p>
           <p className='gauge-label'>Current Power</p>
         </div>
